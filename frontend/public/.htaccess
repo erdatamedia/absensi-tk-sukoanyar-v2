@@ -1,6 +1,13 @@
 # Serves clean URLs (e.g. /login instead of /login.html) for the Next.js
 # static export on Apache-based hosting (cPanel).
 
+# Next.js's static export creates a same-named folder next to each route's
+# .html file (e.g. both login.html and login/ exist, the latter holding
+# route metadata). Without this, Apache/LiteSpeed auto-redirects /login to
+# /login/ because the folder exists, before our rewrite rules below ever
+# run — which then serves a directory listing instead of login.html.
+DirectorySlash Off
+
 DirectoryIndex index.html
 
 RewriteEngine On

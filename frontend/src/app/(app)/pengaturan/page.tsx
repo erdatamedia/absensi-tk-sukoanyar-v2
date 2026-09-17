@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/page-header";
+import { RequireRole } from "@/components/require-role";
 
 interface SchoolSettings {
   school_name: string;
@@ -17,6 +18,14 @@ interface SchoolSettings {
 }
 
 export default function PengaturanPage() {
+  return (
+    <RequireRole roles={["admin"]}>
+      <PengaturanPageContent />
+    </RequireRole>
+  );
+}
+
+function PengaturanPageContent() {
   const [settings, setSettings] = useState<SchoolSettings | null>(null);
   const [schoolName, setSchoolName] = useState("");
   const [schoolTagline, setSchoolTagline] = useState("");

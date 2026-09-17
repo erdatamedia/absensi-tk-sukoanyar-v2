@@ -102,6 +102,16 @@ export async function login(email: string, password: string): Promise<void> {
   });
 }
 
+export async function loginParent(phone: string, pin: string): Promise<void> {
+  await ensureCsrfCookie();
+  // Unlike /login, this is our own JSON endpoint (no Breeze redirect), so
+  // apiFetch's normal flow works fine here.
+  await apiFetch("/parent-login", {
+    method: "POST",
+    body: JSON.stringify({ phone, pin }),
+  });
+}
+
 export async function logout(): Promise<void> {
   // Same redirect-on-success issue as login() — Laravel redirects to "/" after
   // logout, which isn't CORS-enabled, so avoid following it.

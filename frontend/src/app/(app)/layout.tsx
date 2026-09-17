@@ -25,6 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import type { User } from "@/lib/types";
 
 interface NavItem {
   href: string;
@@ -37,29 +38,41 @@ interface NavSection {
   items: NavItem[];
 }
 
-const NAV_SECTIONS: NavSection[] = [
-  {
-    label: "Operasional Absensi",
-    items: [
-      { href: "/absensi/scan", label: "Scan Absensi", icon: ScanFace },
-      { href: "/absensi/manual", label: "Input Manual", icon: SquarePen },
-      { href: "/absensi/monitor", label: "Monitor", icon: Activity },
-      { href: "/absensi/riwayat", label: "Riwayat", icon: History },
-      { href: "/absensi/rekap", label: "Rekap", icon: FileBarChart },
-    ],
-  },
-  {
-    label: "Master Data",
-    items: [
-      { href: "/siswa", label: "Data Siswa", icon: Users },
-      { href: "/kelas", label: "Data Kelas", icon: Building2 },
-    ],
-  },
-  {
-    label: "Pengaturan",
-    items: [{ href: "/pengaturan", label: "Pengaturan Sekolah", icon: Settings }],
-  },
-];
+// Guru menjalankan operasional absensi + boleh lihat Data Siswa (read-only di
+// halaman itu sendiri); Data Kelas & Pengaturan Sekolah khusus admin.
+function getNavSections(role: User["role"]): NavSection[] {
+  const sections: NavSection[] = [
+    {
+      label: "Operasional Absensi",
+      items: [
+        { href: "/absensi/scan", label: "Scan Absensi", icon: ScanFace },
+        { href: "/absensi/manual", label: "Input Manual", icon: SquarePen },
+        { href: "/absensi/monitor", label: "Monitor", icon: Activity },
+        { href: "/absensi/riwayat", label: "Riwayat", icon: History },
+        { href: "/absensi/rekap", label: "Rekap", icon: FileBarChart },
+      ],
+    },
+    {
+      label: "Master Data",
+      items:
+        role === "admin"
+          ? [
+              { href: "/siswa", label: "Data Siswa", icon: Users },
+              { href: "/kelas", label: "Data Kelas", icon: Building2 },
+            ]
+          : [{ href: "/siswa", label: "Data Siswa", icon: Users }],
+    },
+  ];
+
+  if (role === "admin") {
+    sections.push({
+      label: "Pengaturan",
+      items: [{ href: "/pengaturan", label: "Pengaturan Sekolah", icon: Settings }],
+    });
+  }
+
+  return sections;
+}
 
 // Primary items pinned to the mobile bottom bar; everything else lives behind "Lainnya".
 const BOTTOM_NAV_ITEMS: NavItem[] = [
@@ -69,12 +82,21 @@ const BOTTOM_NAV_ITEMS: NavItem[] = [
   { href: "/absensi/rekap", label: "Rekap", icon: FileBarChart },
 ];
 
-const MORE_NAV_ITEMS: NavItem[] = [
-  { href: "/absensi/manual", label: "Input Manual", icon: SquarePen },
-  { href: "/siswa", label: "Data Siswa", icon: Users },
-  { href: "/kelas", label: "Data Kelas", icon: Building2 },
-  { href: "/pengaturan", label: "Pengaturan Sekolah", icon: Settings },
-];
+function getMoreNavItems(role: User["role"]): NavItem[] {
+  const items: NavItem[] = [
+    { href: "/absensi/manual", label: "Input Manual", icon: SquarePen },
+    { href: "/siswa", label: "Data Siswa", icon: Users },
+  ];
+
+  if (role === "admin") {
+    items.push(
+      { href: "/kelas", label: "Data Kelas", icon: Building2 },
+      { href: "/pengaturan", label: "Pengaturan Sekolah", icon: Settings }
+    );
+  }
+
+  return items;
+}
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, logout } = useAuth();
@@ -83,8 +105,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [moreOpen, setMoreOpen] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (loading) return;
+    if (!user) {
       router.replace("/login");
+    } else if (user.role === "orang_tua") {
+      router.replace("/portal-ortu");
     }
   }, [loading, user, router]);
 
@@ -93,7 +118,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     setMoreOpen(false);
   }, [pathname]);
 
-  if (loading || !user) {
+  if (loading || !user || user.role === "orang_tua") {
     return (
       <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
         Memuat...
@@ -103,7 +128,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="app-gradient-bg min-h-screen">
-      <Sidebar pathname={pathname} userName={user.name} userEmail={user.email} onLogout={logout} />
+      <Sidebar
+        pathname={pathname}
+        role={user.role}
+        userName={user.name}
+        userEmail={user.email}
+        onLogout={logout}
+      />
 
       <div className="min-w-0 lg:pl-[296px]">
         <div className="sticky top-0 z-30 px-4 pt-4 lg:hidden">
@@ -120,12 +151,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </main>
       </div>
 
-      <BottomNav pathname={pathname} onMoreClick={() => setMoreOpen(true)} />
+      <BottomNav
+        pathname={pathname}
+        role={user.role}
+        onMoreClick={() => setMoreOpen(true)}
+      />
 
       <MoreSheet
         open={moreOpen}
         onOpenChange={setMoreOpen}
         pathname={pathname}
+        role={user.role}
         userName={user.name}
         userEmail={user.email}
         onLogout={logout}
@@ -136,11 +172,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
 function Sidebar({
   pathname,
+  role,
   userName,
   userEmail,
   onLogout,
 }: {
   pathname: string;
+  role: User["role"];
   userName: string;
   userEmail: string;
   onLogout: () => void;
@@ -151,7 +189,7 @@ function Sidebar({
         <span className="block text-sm font-semibold text-foreground">Absensi TK</span>
         <span className="mt-0.5 block text-xs text-muted-foreground">Sistem Absensi TK</span>
       </div>
-      <NavSections pathname={pathname} />
+      <NavSections pathname={pathname} role={role} />
       <div className="border-t border-white/60 p-4">
         <UserFooter userName={userName} userEmail={userEmail} onLogout={onLogout} />
       </div>
@@ -159,10 +197,12 @@ function Sidebar({
   );
 }
 
-function NavSections({ pathname }: { pathname: string }) {
+function NavSections({ pathname, role }: { pathname: string; role: User["role"] }) {
+  const sections = getNavSections(role);
+
   return (
     <nav className="flex-1 space-y-6 overflow-y-auto px-4 py-6">
-      {NAV_SECTIONS.map((section) => (
+      {sections.map((section) => (
         <div key={section.label}>
           <p className="px-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {section.label}
@@ -222,12 +262,14 @@ function UserFooter({
 
 function BottomNav({
   pathname,
+  role,
   onMoreClick,
 }: {
   pathname: string;
+  role: User["role"];
   onMoreClick: () => void;
 }) {
-  const moreActive = MORE_NAV_ITEMS.some((item) => pathname.startsWith(item.href));
+  const moreActive = getMoreNavItems(role).some((item) => pathname.startsWith(item.href));
 
   return (
     <nav className="fixed inset-x-4 bottom-4 z-30 lg:hidden">
@@ -266,6 +308,7 @@ function MoreSheet({
   open,
   onOpenChange,
   pathname,
+  role,
   userName,
   userEmail,
   onLogout,
@@ -273,6 +316,7 @@ function MoreSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   pathname: string;
+  role: User["role"];
   userName: string;
   userEmail: string;
   onLogout: () => void;
@@ -290,7 +334,7 @@ function MoreSheet({
           </button>
         </DialogHeader>
         <div className="space-y-1.5">
-          {MORE_NAV_ITEMS.map((item) => {
+          {getMoreNavItems(role).map((item) => {
             const active = pathname.startsWith(item.href);
             const Icon = item.icon;
             return (

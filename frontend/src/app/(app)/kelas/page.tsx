@@ -24,8 +24,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/page-header";
+import { RequireRole } from "@/components/require-role";
 
 export default function KelasPage() {
+  return (
+    <RequireRole roles={["admin"]}>
+      <KelasPageContent />
+    </RequireRole>
+  );
+}
+
+function KelasPageContent() {
   const [kelasList, setKelasList] = useState<Kelas[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);

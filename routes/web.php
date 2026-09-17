@@ -9,6 +9,9 @@ use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\AppSettingController;
+use App\Http\Controllers\Api\ParentAuthApiController;
+
+Route::post('/parent-login', [ParentAuthApiController::class, 'login']);
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/absensi', [AbsensiController::class,'index']);

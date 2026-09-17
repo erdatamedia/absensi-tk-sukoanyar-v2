@@ -10,7 +10,11 @@ export default function Home() {
 
   useEffect(() => {
     if (loading) return;
-    router.replace(user ? "/absensi/monitor" : "/login");
+    if (!user) {
+      router.replace("/login");
+    } else {
+      router.replace(user.role === "orang_tua" ? "/portal-ortu" : "/absensi/monitor");
+    }
   }, [loading, user, router]);
 
   return (

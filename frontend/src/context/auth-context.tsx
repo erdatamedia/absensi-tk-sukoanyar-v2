@@ -8,13 +8,20 @@ import {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
-import { apiFetch, ApiError, login as loginRequest, logout as logoutRequest } from "@/lib/api";
+import {
+  apiFetch,
+  ApiError,
+  login as loginRequest,
+  loginParent as loginParentRequest,
+  logout as logoutRequest,
+} from "@/lib/api";
 import type { User } from "@/lib/types";
 
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginParent: (phone: string, pin: string) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<User | null>;
 }
@@ -55,6 +62,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [refresh]
   );
 
+  const loginParent = useCallback(
+    async (phone: string, pin: string) => {
+      await loginParentRequest(phone, pin);
+      const loggedInUser = await refresh();
+      if (!loggedInUser) {
+        throw new ApiError(422, { message: "Nomor HP atau PIN salah." });
+      }
+    },
+    [refresh]
+  );
+
   const logout = useCallback(async () => {
     await logoutRequest();
     setUser(null);
@@ -62,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, refresh }}>
+    <AuthContext.Provider value={{ user, loading, login, loginParent, logout, refresh }}>
       {children}
     </AuthContext.Provider>
   );

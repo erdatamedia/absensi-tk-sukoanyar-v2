@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiFetch, apiFileUrl, ApiError } from "@/lib/api";
+import { useAuth } from "@/context/auth-context";
 import type { Kelas, Siswa } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,8 @@ interface SiswaResponse {
 const ALL = "__all__";
 
 export default function SiswaPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const [kelasId, setKelasId] = useState(ALL);
   const [q, setQ] = useState("");
   const [data, setData] = useState<SiswaResponse | null>(null);
@@ -148,28 +151,36 @@ export default function SiswaPage() {
       <PageHeader
         eyebrow="Master Data"
         title="Data Siswa"
-        description="Kelola data siswa, cetak kartu QR, dan impor data massal."
+        description={
+          isAdmin
+            ? "Kelola data siswa, cetak kartu QR, dan impor data massal."
+            : "Lihat data siswa dan cetak kartu QR."
+        }
         actions={
           <>
             <a href={apiFileUrl("/siswa/kartu-pdf/massal")} target="_blank" rel="noreferrer">
               <Button variant="outline" size="sm">Cetak Semua Kartu</Button>
             </a>
-            <Button variant="outline" size="sm" onClick={() => importInputRef.current?.click()} disabled={busy}>
-              Impor Excel
-            </Button>
-            <input
-              ref={importInputRef}
-              type="file"
-              accept=".xlsx,.xls,.csv"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleImport(file);
-              }}
-            />
-            <SiswaFormDialog title="Tambah Siswa" kelasList={data?.kelas_list ?? []} onSubmit={createSiswa} busy={busy}>
-              <Button size="sm">Tambah Siswa</Button>
-            </SiswaFormDialog>
+            {isAdmin && (
+              <>
+                <Button variant="outline" size="sm" onClick={() => importInputRef.current?.click()} disabled={busy}>
+                  Impor Excel
+                </Button>
+                <input
+                  ref={importInputRef}
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleImport(file);
+                  }}
+                />
+                <SiswaFormDialog title="Tambah Siswa" kelasList={data?.kelas_list ?? []} onSubmit={createSiswa} busy={busy}>
+                  <Button size="sm">Tambah Siswa</Button>
+                </SiswaFormDialog>
+              </>
+            )}
           </>
         }
       />
@@ -249,21 +260,25 @@ export default function SiswaPage() {
                       <a href={apiFileUrl(`/siswa/${siswa.id}/kartu-pdf`)} target="_blank" rel="noreferrer">
                         <Button variant="outline" size="sm">Kartu</Button>
                       </a>
-                      <FaceEnrollDialog siswa={siswa} onSubmit={(file) => enrollFace(siswa, file)} busy={busy}>
-                        <Button variant="outline" size="sm">Wajah</Button>
-                      </FaceEnrollDialog>
-                      <SiswaFormDialog
-                        title={`Edit ${siswa.nama}`}
-                        kelasList={data?.kelas_list ?? []}
-                        initial={siswa}
-                        onSubmit={(payload) => updateSiswa(siswa, payload)}
-                        busy={busy}
-                      >
-                        <Button variant="outline" size="sm">Edit</Button>
-                      </SiswaFormDialog>
-                      <Button variant="ghost" size="sm" onClick={() => deleteSiswa(siswa)} disabled={busy}>
-                        Hapus
-                      </Button>
+                      {isAdmin && (
+                        <>
+                          <FaceEnrollDialog siswa={siswa} onSubmit={(file) => enrollFace(siswa, file)} busy={busy}>
+                            <Button variant="outline" size="sm">Wajah</Button>
+                          </FaceEnrollDialog>
+                          <SiswaFormDialog
+                            title={`Edit ${siswa.nama}`}
+                            kelasList={data?.kelas_list ?? []}
+                            initial={siswa}
+                            onSubmit={(payload) => updateSiswa(siswa, payload)}
+                            busy={busy}
+                          >
+                            <Button variant="outline" size="sm">Edit</Button>
+                          </SiswaFormDialog>
+                          <Button variant="ghost" size="sm" onClick={() => deleteSiswa(siswa)} disabled={busy}>
+                            Hapus
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

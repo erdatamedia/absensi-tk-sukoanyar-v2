@@ -2,7 +2,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  role: "admin" | "orang_tua";
+  role: "admin" | "guru" | "orang_tua";
 }
 
 export interface Kelas {

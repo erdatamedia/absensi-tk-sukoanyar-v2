@@ -79,14 +79,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-background lg:flex">
+    <div className="app-gradient-bg min-h-screen lg:flex">
       <Sidebar pathname={pathname} userName={user.name} userEmail={user.email} onLogout={logout} />
 
       {drawerOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="fixed inset-0 bg-black/30" onClick={() => setDrawerOpen(false)} />
-          <aside className="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b border-border px-5 py-5">
+          <aside className="fixed inset-y-0 left-0 z-50 w-72 border-r border-white/60 bg-white/75 shadow-xl backdrop-blur-2xl">
+            <div className="flex items-center justify-between border-b border-white/60 px-5 py-5">
               <div>
                 <p className="text-sm font-semibold text-foreground">Absensi TK</p>
                 <p className="text-xs text-muted-foreground">Sistem Absensi TK</p>
@@ -99,7 +99,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </button>
             </div>
             <NavSections pathname={pathname} />
-            <div className="border-t border-border p-4">
+            <div className="border-t border-white/60 p-4">
               <UserFooter userName={user.name} userEmail={user.email} onLogout={logout} />
             </div>
           </aside>
@@ -107,7 +107,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       )}
 
       <div className="min-w-0 flex-1">
-        <div className="sticky top-0 z-30 border-b border-border/80 bg-white/95 backdrop-blur lg:hidden">
+        <div className="sticky top-0 z-30 border-b border-white/50 bg-white/60 backdrop-blur-xl lg:hidden">
           <div className="flex items-center justify-between px-4 py-3">
             <button
               onClick={() => setDrawerOpen(true)}
@@ -141,13 +141,13 @@ function Sidebar({
   onLogout: () => void;
 }) {
   return (
-    <div className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-72 lg:flex-col lg:border-r lg:border-border lg:bg-white">
-      <div className="border-b border-border px-6 py-6">
+    <div className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-72 lg:flex-col lg:border-r lg:border-white/60 lg:bg-white/60 lg:backdrop-blur-2xl">
+      <div className="border-b border-white/60 px-6 py-6">
         <span className="block text-sm font-semibold text-foreground">Absensi TK</span>
         <span className="mt-0.5 block text-xs text-muted-foreground">Sistem Absensi TK</span>
       </div>
       <NavSections pathname={pathname} />
-      <div className="border-t border-border p-4">
+      <div className="border-t border-white/60 p-4">
         <UserFooter userName={userName} userEmail={userEmail} onLogout={onLogout} />
       </div>
     </div>
@@ -172,8 +172,8 @@ function NavSections({ pathname }: { pathname: string }) {
                   href={item.href}
                   className={`group flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition ${
                     active
-                      ? "bg-slate-900 text-white shadow-sm"
-                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                      ? "bg-primary text-primary-foreground shadow-sm shadow-indigo-500/30"
+                      : "text-muted-foreground hover:bg-white/50 hover:text-foreground"
                   }`}
                 >
                   <Icon className="h-5 w-5 shrink-0" />
@@ -198,9 +198,9 @@ function UserFooter({
   onLogout: () => void;
 }) {
   return (
-    <div className="rounded-2xl bg-muted p-4">
+    <div className="rounded-2xl border border-white/60 bg-white/50 p-4 backdrop-blur-md">
       <div className="mb-4 flex items-center gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
           {userName.slice(0, 1).toUpperCase()}
         </span>
         <div className="min-w-0">

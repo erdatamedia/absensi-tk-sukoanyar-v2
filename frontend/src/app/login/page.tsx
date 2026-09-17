@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button";
 import { GlassTile } from "@/components/glass-hero";
 
 const STEPS = [
-  { label: "Langkah 1", text: "Scan QR siswa" },
-  { label: "Langkah 2", text: "Ambil selfie bukti hadir" },
+  { label: "Langkah 1", text: "Kenali wajah siswa" },
+  { label: "Langkah 2", text: "Simpan bukti foto" },
   { label: "Langkah 3", text: "Rekap otomatis tersusun" },
 ];
 
@@ -52,16 +52,16 @@ export default function LoginPage() {
       <div className="auth-gradient-bg pointer-events-none absolute inset-0" />
       <div className="relative mx-auto flex min-h-screen max-w-6xl items-center px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid w-full gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,440px)] lg:items-center">
-          <section className="hidden rounded-[32px] bg-slate-900 px-8 py-10 text-white shadow-xl sm:px-10 lg:block">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-300">
+          <section className="glass-hero hidden rounded-[32px] px-8 py-10 text-white shadow-xl shadow-indigo-500/20 sm:px-10 lg:block">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
               Sistem Absensi TK
             </p>
             <h1 className="mt-4 max-w-xl text-4xl font-semibold leading-tight">
-              Scan QR, ambil selfie, dan simpan rekap hadir dari satu titik absensi.
+              Scan wajah, ambil bukti hadir, dan simpan rekap otomatis dari satu titik absensi.
             </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300">
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/85">
               Aplikasi ini dipakai guru di laptop sekolah untuk absensi masuk dan pulang. Fokus
-              sistem hanya pada operasional absensi, bukti selfie, dan rekap otomatis.
+              sistem hanya pada operasional absensi, bukti foto, dan rekap otomatis.
             </p>
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
               {STEPS.map((step) => (
@@ -70,7 +70,7 @@ export default function LoginPage() {
             </div>
           </section>
 
-          <section className="rounded-[32px] border border-border bg-white p-6 shadow-lg sm:p-8">
+          <section className="rounded-[32px] border border-white/60 bg-white/70 p-6 shadow-lg shadow-slate-900/5 backdrop-blur-xl sm:p-8">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
               Akses Admin
             </p>

@@ -10,7 +10,7 @@ export function GlassHero({
   return (
     <section
       className={cn(
-        "overflow-hidden rounded-[28px] bg-slate-900 px-6 py-6 text-white shadow-sm sm:px-8",
+        "glass-hero overflow-hidden rounded-[28px] px-6 py-6 text-white shadow-lg shadow-indigo-500/20 sm:px-8",
         className
       )}
     >
@@ -33,18 +33,18 @@ export function GlassTile({
   return (
     <div
       className={cn(
-        "rounded-3xl border p-4",
+        "rounded-3xl border p-4 backdrop-blur-md",
         tone === "positive"
-          ? "border-emerald-400/20 bg-emerald-400/10"
-          : "border-white/10 bg-white/10"
+          ? "border-emerald-200/50 bg-emerald-300/20"
+          : "border-white/40 bg-white/15"
       )}
     >
-      <p className={cn("text-sm", tone === "positive" ? "text-emerald-100" : "text-slate-300")}>
+      <p className={cn("text-sm", tone === "positive" ? "text-emerald-50" : "text-white/85")}>
         {label}
       </p>
       <p className="mt-2 text-2xl font-semibold text-white sm:text-3xl">{value}</p>
       {hint && (
-        <p className={cn("mt-1 text-xs", tone === "positive" ? "text-emerald-100/90" : "text-slate-300")}>
+        <p className={cn("mt-1 text-xs", tone === "positive" ? "text-emerald-50/90" : "text-white/80")}>
           {hint}
         </p>
       )}

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="id" className={`${figtree.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-background">
+      <body className="app-gradient-bg min-h-full flex flex-col text-foreground">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

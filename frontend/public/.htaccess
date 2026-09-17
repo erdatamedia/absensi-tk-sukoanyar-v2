@@ -1,0 +1,21 @@
+# Serves clean URLs (e.g. /login instead of /login.html) for the Next.js
+# static export on Apache-based hosting (cPanel).
+
+DirectoryIndex index.html
+
+RewriteEngine On
+
+# If the exact file exists (css/js/images/etc.), serve it as-is.
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# /some/route -> /some/route.html, if that file exists.
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(.*)$ $1.html [L]
+
+# /some/route/ -> /some/route/index.html, if that file exists.
+RewriteCond %{REQUEST_FILENAME}index.html -f
+RewriteRule ^(.*)/$ $1/index.html [L]
+
+# Anything else that doesn't resolve to a real file -> custom 404 page.
+ErrorDocument 404 /404.html

@@ -5,18 +5,26 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Building2,
-  ClipboardList,
+  FileBarChart,
   History,
-  Menu,
-  QrCode,
+  MoreHorizontal,
+  ScanFace,
   Settings,
   SquarePen,
   Users,
+  Activity,
+  LogOut,
   X,
   type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface NavItem {
   href: string;
@@ -33,11 +41,11 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: "Operasional Absensi",
     items: [
-      { href: "/absensi/scan", label: "Scan Absensi", icon: QrCode },
+      { href: "/absensi/scan", label: "Scan Absensi", icon: ScanFace },
       { href: "/absensi/manual", label: "Input Manual", icon: SquarePen },
-      { href: "/absensi/monitor", label: "Monitor", icon: ClipboardList },
+      { href: "/absensi/monitor", label: "Monitor", icon: Activity },
       { href: "/absensi/riwayat", label: "Riwayat", icon: History },
-      { href: "/absensi/rekap", label: "Rekap", icon: ClipboardList },
+      { href: "/absensi/rekap", label: "Rekap", icon: FileBarChart },
     ],
   },
   {
@@ -53,11 +61,26 @@ const NAV_SECTIONS: NavSection[] = [
   },
 ];
 
+// Primary items pinned to the mobile bottom bar; everything else lives behind "Lainnya".
+const BOTTOM_NAV_ITEMS: NavItem[] = [
+  { href: "/absensi/scan", label: "Scan", icon: ScanFace },
+  { href: "/absensi/monitor", label: "Monitor", icon: Activity },
+  { href: "/absensi/riwayat", label: "Riwayat", icon: History },
+  { href: "/absensi/rekap", label: "Rekap", icon: FileBarChart },
+];
+
+const MORE_NAV_ITEMS: NavItem[] = [
+  { href: "/absensi/manual", label: "Input Manual", icon: SquarePen },
+  { href: "/siswa", label: "Data Siswa", icon: Users },
+  { href: "/kelas", label: "Data Kelas", icon: Building2 },
+  { href: "/pengaturan", label: "Pengaturan Sekolah", icon: Settings },
+];
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -66,8 +89,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [loading, user, router]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- close mobile drawer on navigation
-    setDrawerOpen(false);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- close "more" sheet on navigation
+    setMoreOpen(false);
   }, [pathname]);
 
   if (loading || !user) {
@@ -79,52 +102,34 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="app-gradient-bg min-h-screen lg:flex">
+    <div className="app-gradient-bg min-h-screen">
       <Sidebar pathname={pathname} userName={user.name} userEmail={user.email} onLogout={logout} />
 
-      {drawerOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="fixed inset-0 bg-black/30" onClick={() => setDrawerOpen(false)} />
-          <aside className="fixed inset-y-0 left-0 z-50 w-72 border-r border-white/60 bg-white/75 shadow-xl backdrop-blur-2xl">
-            <div className="flex items-center justify-between border-b border-white/60 px-5 py-5">
-              <div>
-                <p className="text-sm font-semibold text-foreground">Absensi TK</p>
-                <p className="text-xs text-muted-foreground">Sistem Absensi TK</p>
-              </div>
-              <button
-                onClick={() => setDrawerOpen(false)}
-                className="rounded-xl p-2 text-muted-foreground transition hover:bg-accent"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <NavSections pathname={pathname} />
-            <div className="border-t border-white/60 p-4">
-              <UserFooter userName={user.name} userEmail={user.email} onLogout={logout} />
-            </div>
-          </aside>
-        </div>
-      )}
-
-      <div className="min-w-0 flex-1">
-        <div className="sticky top-0 z-30 border-b border-white/50 bg-white/60 backdrop-blur-xl lg:hidden">
-          <div className="flex items-center justify-between px-4 py-3">
-            <button
-              onClick={() => setDrawerOpen(true)}
-              className="inline-flex items-center justify-center rounded-xl border border-border p-2 text-muted-foreground transition hover:bg-accent"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
+      <div className="min-w-0 lg:pl-[296px]">
+        <div className="sticky top-0 z-30 px-4 pt-4 lg:hidden">
+          <div className="flex items-center justify-center rounded-3xl border border-white/60 bg-white/60 px-4 py-3 shadow-sm backdrop-blur-xl">
             <div className="text-center">
               <p className="text-sm font-semibold text-foreground">Absensi TK</p>
               <p className="text-xs text-muted-foreground">Sistem Absensi TK</p>
             </div>
-            <div className="w-9" />
           </div>
         </div>
 
-        <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+        <main className="mx-auto w-full max-w-6xl px-4 py-6 pb-28 sm:px-6 lg:px-8 lg:pb-6">
+          {children}
+        </main>
       </div>
+
+      <BottomNav pathname={pathname} onMoreClick={() => setMoreOpen(true)} />
+
+      <MoreSheet
+        open={moreOpen}
+        onOpenChange={setMoreOpen}
+        pathname={pathname}
+        userName={user.name}
+        userEmail={user.email}
+        onLogout={logout}
+      />
     </div>
   );
 }
@@ -141,7 +146,7 @@ function Sidebar({
   onLogout: () => void;
 }) {
   return (
-    <div className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-72 lg:flex-col lg:border-r lg:border-white/60 lg:bg-white/60 lg:backdrop-blur-2xl">
+    <div className="hidden lg:fixed lg:inset-y-4 lg:left-4 lg:flex lg:w-64 lg:flex-col lg:rounded-3xl lg:border lg:border-white/60 lg:bg-white/60 lg:shadow-xl lg:shadow-orange-900/5 lg:backdrop-blur-2xl">
       <div className="border-b border-white/60 px-6 py-6">
         <span className="block text-sm font-semibold text-foreground">Absensi TK</span>
         <span className="mt-0.5 block text-xs text-muted-foreground">Sistem Absensi TK</span>
@@ -172,7 +177,7 @@ function NavSections({ pathname }: { pathname: string }) {
                   href={item.href}
                   className={`group flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition ${
                     active
-                      ? "bg-primary text-primary-foreground shadow-sm shadow-indigo-500/30"
+                      ? "bg-primary text-primary-foreground shadow-sm shadow-orange-500/30"
                       : "text-muted-foreground hover:bg-white/50 hover:text-foreground"
                   }`}
                 >
@@ -212,5 +217,115 @@ function UserFooter({
         Keluar
       </Button>
     </div>
+  );
+}
+
+function BottomNav({
+  pathname,
+  onMoreClick,
+}: {
+  pathname: string;
+  onMoreClick: () => void;
+}) {
+  const moreActive = MORE_NAV_ITEMS.some((item) => pathname.startsWith(item.href));
+
+  return (
+    <nav className="fixed inset-x-4 bottom-4 z-30 lg:hidden">
+      <div className="flex items-center justify-around rounded-3xl border border-white/60 bg-white/70 px-2 py-2 shadow-lg shadow-orange-900/10 backdrop-blur-2xl">
+        {BOTTOM_NAV_ITEMS.map((item) => {
+          const active = pathname.startsWith(item.href);
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex flex-1 flex-col items-center gap-0.5 rounded-2xl px-2 py-2 text-[11px] font-medium transition ${
+                active ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+              }`}
+            >
+              <Icon className="h-5 w-5" />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
+        <button
+          onClick={onMoreClick}
+          className={`flex flex-1 flex-col items-center gap-0.5 rounded-2xl px-2 py-2 text-[11px] font-medium transition ${
+            moreActive ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+          }`}
+        >
+          <MoreHorizontal className="h-5 w-5" />
+          <span>Lainnya</span>
+        </button>
+      </div>
+    </nav>
+  );
+}
+
+function MoreSheet({
+  open,
+  onOpenChange,
+  pathname,
+  userName,
+  userEmail,
+  onLogout,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  pathname: string;
+  userName: string;
+  userEmail: string;
+  onLogout: () => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent showCloseButton={false} className="lg:hidden">
+        <DialogHeader className="flex-row items-center justify-between space-y-0">
+          <DialogTitle>Menu Lainnya</DialogTitle>
+          <button
+            onClick={() => onOpenChange(false)}
+            className="rounded-xl p-1.5 text-muted-foreground transition hover:bg-accent"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </DialogHeader>
+        <div className="space-y-1.5">
+          {MORE_NAV_ITEMS.map((item) => {
+            const active = pathname.startsWith(item.href);
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition ${
+                  active
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                }`}
+              >
+                <Icon className="h-5 w-5 shrink-0" />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+        <div className="mt-2 flex items-center gap-3 rounded-2xl border border-border p-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+            {userName.slice(0, 1).toUpperCase()}
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-foreground">{userName}</p>
+            <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
+          </div>
+          <button
+            onClick={onLogout}
+            className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10"
+          >
+            <LogOut className="h-4 w-4" />
+            Keluar
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

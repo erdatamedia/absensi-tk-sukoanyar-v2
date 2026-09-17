@@ -49,24 +49,24 @@
 }
 
 :root {
-  --background: oklch(0.984 0.003 247.86);
-  --foreground: oklch(0.208 0.042 265.75);
+  --background: oklch(0.98 0.012 60);
+  --foreground: oklch(0.32 0.05 40);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.208 0.042 265.75);
+  --card-foreground: oklch(0.32 0.05 40);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.208 0.042 265.75);
-  --primary: oklch(0.546 0.245 262.88);
-  --primary-foreground: oklch(0.984 0.003 247.86);
-  --secondary: oklch(0.968 0.007 247.9);
-  --secondary-foreground: oklch(0.208 0.042 265.75);
-  --muted: oklch(0.968 0.007 247.9);
-  --muted-foreground: oklch(0.554 0.046 257.42);
-  --accent: oklch(0.968 0.007 247.9);
-  --accent-foreground: oklch(0.208 0.042 265.75);
+  --popover-foreground: oklch(0.32 0.05 40);
+  --primary: oklch(0.68 0.19 35);
+  --primary-foreground: oklch(0.99 0.01 60);
+  --secondary: oklch(0.96 0.02 55);
+  --secondary-foreground: oklch(0.32 0.05 40);
+  --muted: oklch(0.96 0.02 55);
+  --muted-foreground: oklch(0.55 0.05 40);
+  --accent: oklch(0.96 0.02 55);
+  --accent-foreground: oklch(0.32 0.05 40);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.929 0.013 255.51);
-  --input: oklch(0.929 0.013 255.51);
-  --ring: oklch(0.704 0.04 256.79);
+  --border: oklch(0.91 0.025 50);
+  --input: oklch(0.91 0.025 50);
+  --ring: oklch(0.75 0.09 45);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -130,25 +130,25 @@
 }
 
 .app-gradient-bg {
-  background-color: #f4f6ff;
+  background-color: #fffaf3;
   background-image:
-    radial-gradient(at 12% 8%, rgba(99, 102, 241, 0.30) 0, transparent 45%),
-    radial-gradient(at 88% 12%, rgba(236, 72, 153, 0.24) 0, transparent 45%),
-    radial-gradient(at 15% 85%, rgba(56, 189, 248, 0.28) 0, transparent 45%),
-    radial-gradient(at 90% 90%, rgba(168, 85, 247, 0.22) 0, transparent 45%),
-    radial-gradient(at 50% 50%, rgba(250, 204, 21, 0.10) 0, transparent 60%);
+    radial-gradient(at 12% 8%, rgba(251, 146, 60, 0.26) 0, transparent 45%),
+    radial-gradient(at 88% 12%, rgba(251, 113, 133, 0.24) 0, transparent 45%),
+    radial-gradient(at 15% 85%, rgba(253, 224, 71, 0.32) 0, transparent 45%),
+    radial-gradient(at 90% 90%, rgba(252, 165, 165, 0.24) 0, transparent 45%),
+    radial-gradient(at 50% 50%, rgba(254, 240, 138, 0.14) 0, transparent 60%);
   background-attachment: fixed;
 }
 
 .auth-gradient-bg {
-  background-color: #f4f6ff;
+  background-color: #fffaf3;
   background-image:
-    radial-gradient(circle at top left, rgba(99, 102, 241, 0.35), transparent 40%),
-    radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.3), transparent 40%),
-    radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.22), transparent 40%);
+    radial-gradient(circle at top left, rgba(251, 146, 60, 0.32), transparent 40%),
+    radial-gradient(circle at bottom right, rgba(253, 224, 71, 0.3), transparent 40%),
+    radial-gradient(circle at bottom left, rgba(251, 113, 133, 0.26), transparent 40%);
   background-attachment: fixed;
 }
 
 .glass-hero {
-  background-image: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  background-image: linear-gradient(135deg, #fb923c 0%, #fb7185 55%, #fbbf24 100%);
 }

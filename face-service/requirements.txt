@@ -3,4 +3,7 @@ uvicorn[standard]==0.32.1
 python-multipart==0.0.19
 opencv-contrib-python-headless==4.10.0.84
 numpy==1.26.4
-requests==2.32.3
+
+# Bridges the ASGI app (FastAPI) to WSGI, which is what cPanel's
+# "Setup Python App" / Passenger expects via passenger_wsgi.py.
+a2wsgi==1.10.7

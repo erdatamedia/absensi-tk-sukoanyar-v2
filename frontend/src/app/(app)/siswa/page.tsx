@@ -422,6 +422,17 @@ function SiswaFormDialog({
   );
 }
 
+function dataUrlToFile(dataUrl: string, filename: string): File {
+  const [header, base64] = dataUrl.split(",");
+  const mime = header.match(/:(.*?);/)?.[1] ?? "image/jpeg";
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new File([bytes], filename, { type: mime });
+}
+
+type FaceEnrollMode = "upload" | "kamera";
+
 function FaceEnrollDialog({
   siswa,
   onSubmit,
@@ -434,6 +445,7 @@ function FaceEnrollDialog({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<FaceEnrollMode>("kamera");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -441,12 +453,16 @@ function FaceEnrollDialog({
     ? apiFileUrl(`/storage/${siswa.foto_referensi}`)
     : null;
 
+  function resetCapture() {
+    setFile(null);
+    setPreview(null);
+  }
+
   function submit() {
     if (!file) return;
     onSubmit(file);
     setOpen(false);
-    setFile(null);
-    setPreview(null);
+    resetCapture();
   }
 
   return (
@@ -454,42 +470,79 @@ function FaceEnrollDialog({
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (!next) {
-          setFile(null);
-          setPreview(null);
-        }
+        if (!next) resetCapture();
+        else setMode("kamera");
       }}
     >
       <DialogTrigger render={children as React.ReactElement} />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Foto Referensi Wajah — {siswa.nama}</DialogTitle>
+          <DialogTitle>Daftarkan Wajah — {siswa.nama}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Unggah 1 foto wajah yang jelas dan menghadap depan. Foto ini dipakai sistem untuk
-            mengenali siswa saat absensi wajah di kiosk.
+            Ambil atau unggah 1 foto wajah yang jelas dan menghadap depan. Foto ini dipakai
+            sistem untuk mengenali siswa saat absensi wajah di kiosk.
           </p>
-          {(preview ?? existingPhotoUrl) && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={preview ?? existingPhotoUrl ?? undefined}
-              alt={`Foto referensi ${siswa.nama}`}
-              className="h-40 w-40 rounded-2xl object-cover"
+
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant={mode === "kamera" ? "default" : "outline"}
+              onClick={() => {
+                setMode("kamera");
+                resetCapture();
+              }}
+            >
+              Buka Kamera
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={mode === "upload" ? "default" : "outline"}
+              onClick={() => {
+                setMode("upload");
+                resetCapture();
+              }}
+            >
+              Unggah File
+            </Button>
+          </div>
+
+          {mode === "kamera" ? (
+            <CameraCapture
+              preview={preview}
+              onCapture={(dataUrl) => {
+                setPreview(dataUrl);
+                setFile(dataUrlToFile(dataUrl, `${siswa.nis || siswa.id}-wajah.jpg`));
+              }}
+              onRetake={resetCapture}
             />
+          ) : (
+            <>
+              {(preview ?? existingPhotoUrl) && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={preview ?? existingPhotoUrl ?? undefined}
+                  alt={`Foto referensi ${siswa.nama}`}
+                  className="h-40 w-40 rounded-2xl object-cover"
+                />
+              )}
+              <input
+                type="file"
+                accept="image/png,image/jpeg"
+                onChange={(e) => {
+                  const selected = e.target.files?.[0];
+                  if (selected) {
+                    setFile(selected);
+                    setPreview(URL.createObjectURL(selected));
+                  }
+                }}
+                className="block w-full text-sm text-muted-foreground"
+              />
+            </>
           )}
-          <input
-            type="file"
-            accept="image/png,image/jpeg"
-            onChange={(e) => {
-              const selected = e.target.files?.[0];
-              if (selected) {
-                setFile(selected);
-                setPreview(URL.createObjectURL(selected));
-              }
-            }}
-            className="block w-full text-sm text-muted-foreground"
-          />
         </div>
         <DialogFooter>
           <Button onClick={submit} disabled={busy || !file}>
@@ -498,5 +551,89 @@ function FaceEnrollDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function CameraCapture({
+  preview,
+  onCapture,
+  onRetake,
+}: {
+  preview: string | null;
+  onCapture: (dataUrl: string) => void;
+  onRetake: () => void;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (preview) return;
+    let cancelled = false;
+
+    async function start() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        if (cancelled) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+        }
+        setCameraError(null);
+      } catch (err) {
+        setCameraError(err instanceof Error ? err.message : "Gagal mengakses kamera.");
+      }
+    }
+
+    start();
+
+    return () => {
+      cancelled = true;
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    };
+  }, [preview]);
+
+  function capture() {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas || !video.videoWidth || !video.videoHeight) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    onCapture(canvas.toDataURL("image/jpeg", 0.85));
+  }
+
+  if (preview) {
+    return (
+      <div className="space-y-3">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={preview} alt="Hasil tangkapan wajah" className="h-48 w-48 rounded-2xl object-cover" />
+        <Button type="button" size="sm" variant="outline" onClick={onRetake}>
+          Ambil Ulang
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {cameraError ? (
+        <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{cameraError}</p>
+      ) : (
+        <video ref={videoRef} muted playsInline className="w-full rounded-2xl bg-slate-900" />
+      )}
+      <canvas ref={canvasRef} className="hidden" />
+      <Button type="button" size="sm" onClick={capture} disabled={!!cameraError}>
+        Ambil Foto
+      </Button>
+    </div>
   );
 }

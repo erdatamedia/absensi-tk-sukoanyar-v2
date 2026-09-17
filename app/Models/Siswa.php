@@ -18,8 +18,20 @@ class Siswa extends Model
         'alamat',
         'keterangan',
         'qr_token',
-        'foto_referensi'
+        'foto_referensi',
+        'face_embedding',
     ];
+
+    protected $hidden = [
+        'face_embedding',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'face_embedding' => 'array',
+        ];
+    }
 
     protected static function boot()
     {

@@ -12,6 +12,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Public: non-sensitive school name/logo, needed to brand the login page
+// and browser tab favicon before anyone is signed in.
+Route::get('/settings/branding', [AppSettingApiController::class, 'branding']);
+
 Route::middleware(['auth:sanctum', 'role:orang_tua'])->prefix('portal-ortu')->group(function () {
     Route::get('/absensi-anak', [PortalOrangTuaApiController::class, 'absensiAnak']);
 });

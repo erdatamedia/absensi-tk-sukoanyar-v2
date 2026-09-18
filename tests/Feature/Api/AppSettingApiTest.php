@@ -38,4 +38,22 @@ class AppSettingApiTest extends TestCase
         $logoPath = AppSetting::where('key', 'school_logo_path')->value('value');
         Storage::disk('public')->assertExists($logoPath);
     }
+
+    public function test_branding_endpoint_is_public_and_reflects_saved_settings(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)->postJson('/api/settings/school', [
+            'school_name' => 'TK Ceria',
+            'operational_start' => '06:30',
+            'operational_end' => '13:00',
+            'school_logo' => UploadedFile::fake()->image('logo.png', 256, 256),
+        ])->assertOk();
+
+        $this->getJson('/api/settings/branding')
+            ->assertOk()
+            ->assertJson(['status' => 'ok', 'school_name' => 'TK Ceria'])
+            ->assertJsonStructure(['school_logo_url']);
+    }
 }

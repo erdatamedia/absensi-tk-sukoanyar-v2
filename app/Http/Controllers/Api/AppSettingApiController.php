@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\AppSettingService;
+use App\Support\Branding;
 use Illuminate\Http\Request;
 
 class AppSettingApiController extends Controller
@@ -17,6 +18,19 @@ class AppSettingApiController extends Controller
         return response()->json([
             'status' => 'ok',
             'settings' => $this->appSettingService->currentSettings(),
+        ]);
+    }
+
+    /**
+     * Public, unauthenticated: just the non-sensitive bits needed to brand
+     * the login page and browser tab (favicon) before anyone is signed in.
+     */
+    public function branding()
+    {
+        return response()->json([
+            'status' => 'ok',
+            'school_name' => Branding::schoolName(),
+            'school_logo_url' => Branding::logoUrl(),
         ]);
     }
 

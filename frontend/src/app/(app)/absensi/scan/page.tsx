@@ -6,6 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/page-header";
+import { SwitchCamera } from "lucide-react";
+
+type FacingMode = "user" | "environment";
 
 interface ScanResult {
   status: string;
@@ -253,6 +256,7 @@ function FaceScanner({
   const activeRef = useRef(active);
   const onMatchRef = useRef(onMatch);
   const onServiceDownRef = useRef(onServiceDown);
+  const [facing, setFacing] = useState<FacingMode>("user");
 
   useEffect(() => {
     activeRef.current = active;
@@ -267,7 +271,7 @@ function FaceScanner({
 
     async function start() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing } });
         if (cancelled) {
           stream.getTracks().forEach((t) => t.stop());
           return;
@@ -339,12 +343,20 @@ function FaceScanner({
       streamRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [facing]);
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-sm">Kamera</CardTitle>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setFacing((f) => (f === "user" ? "environment" : "user"))}
+        >
+          <SwitchCamera className="size-4" />
+          {facing === "user" ? "Kamera Depan" : "Kamera Belakang"}
+        </Button>
       </CardHeader>
       <CardContent>
         <video ref={videoRef} muted playsInline className="w-full rounded-2xl bg-slate-900" />

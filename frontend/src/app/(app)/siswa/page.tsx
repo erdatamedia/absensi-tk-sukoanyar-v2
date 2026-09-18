@@ -10,6 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/page-header";
+import { SwitchCamera } from "lucide-react";
+
+type FacingMode = "user" | "environment";
 import {
   Select,
   SelectContent,
@@ -567,6 +570,7 @@ function CameraCapture({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [facing, setFacing] = useState<FacingMode>("user");
 
   useEffect(() => {
     if (preview) return;
@@ -574,7 +578,7 @@ function CameraCapture({
 
     async function start() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing } });
         if (cancelled) {
           stream.getTracks().forEach((t) => t.stop());
           return;
@@ -597,7 +601,7 @@ function CameraCapture({
       streamRef.current?.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     };
-  }, [preview]);
+  }, [preview, facing]);
 
   function capture() {
     const video = videoRef.current;
@@ -631,9 +635,20 @@ function CameraCapture({
         <video ref={videoRef} muted playsInline className="w-full rounded-2xl bg-slate-900" />
       )}
       <canvas ref={canvasRef} className="hidden" />
-      <Button type="button" size="sm" onClick={capture} disabled={!!cameraError}>
-        Ambil Foto
-      </Button>
+      <div className="flex gap-2">
+        <Button type="button" size="sm" onClick={capture} disabled={!!cameraError}>
+          Ambil Foto
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={() => setFacing((f) => (f === "user" ? "environment" : "user"))}
+        >
+          <SwitchCamera className="size-4" />
+          {facing === "user" ? "Kamera Depan" : "Kamera Belakang"}
+        </Button>
+      </div>
     </div>
   );
 }

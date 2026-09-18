@@ -252,12 +252,17 @@ export default function SiswaPage() {
                   <TableCell>
                     {siswa.foto_referensi ? (
                       <div className="flex items-center gap-2">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <FacePreviewDialog
                           src={apiFileUrl(`/storage/${siswa.foto_referensi}`)}
-                          alt={`Foto wajah ${siswa.nama}`}
-                          className="h-9 w-9 rounded-full border object-cover"
-                        />
+                          nama={siswa.nama}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={apiFileUrl(`/storage/${siswa.foto_referensi}`)}
+                            alt={`Foto wajah ${siswa.nama}`}
+                            className="h-9 w-9 cursor-zoom-in rounded-full border object-cover transition hover:opacity-80"
+                          />
+                        </FacePreviewDialog>
                         <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
                           Terdaftar
                         </Badge>
@@ -428,6 +433,33 @@ function SiswaFormDialog({
             Simpan
           </Button>
         </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function FacePreviewDialog({
+  src,
+  nama,
+  children,
+}: {
+  src: string;
+  nama: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Dialog>
+      <DialogTrigger render={<button type="button">{children}</button>} />
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Foto Referensi Wajah — {nama}</DialogTitle>
+        </DialogHeader>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt={`Foto wajah ${nama}`}
+          className="mx-auto max-h-[70vh] w-full rounded-2xl object-contain"
+        />
       </DialogContent>
     </Dialog>
   );

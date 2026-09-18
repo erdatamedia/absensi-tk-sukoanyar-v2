@@ -251,9 +251,17 @@ export default function SiswaPage() {
                   <TableCell>{siswa.jenis_kelamin === "L" ? "Laki-laki" : "Perempuan"}</TableCell>
                   <TableCell>
                     {siswa.foto_referensi ? (
-                      <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
-                        Terdaftar
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={apiFileUrl(`/storage/${siswa.foto_referensi}`)}
+                          alt={`Foto wajah ${siswa.nama}`}
+                          className="h-9 w-9 rounded-full border object-cover"
+                        />
+                        <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
+                          Terdaftar
+                        </Badge>
+                      </div>
                     ) : (
                       <Badge variant="outline">Belum</Badge>
                     )}

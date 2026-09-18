@@ -56,6 +56,7 @@ const STATUS_LABELS: Record<string, string> = {
 const SUMBER_LABELS: Record<string, string> = {
   [ALL]: "Semua",
   scan_qr: "Scan QR",
+  scan_wajah: "Scan Wajah",
   manual: "Manual",
   auto_alpha: "Auto Alpha",
 };
@@ -262,6 +263,7 @@ export default function RiwayatPage() {
               <SelectContent>
                 <SelectItem value={ALL}>Semua</SelectItem>
                 <SelectItem value="scan_qr">Scan QR</SelectItem>
+                <SelectItem value="scan_wajah">Scan Wajah</SelectItem>
                 <SelectItem value="manual">Manual</SelectItem>
                 <SelectItem value="auto_alpha">Auto Alpha</SelectItem>
               </SelectContent>
@@ -441,7 +443,9 @@ function RiwayatRow({
           {Boolean(absensi.terlambat) && <Badge variant="destructive">Terlambat</Badge>}
         </div>
       </TableCell>
-      <TableCell className="text-xs uppercase text-muted-foreground">{absensi.sumber}</TableCell>
+      <TableCell className="text-xs uppercase text-muted-foreground">
+        {SUMBER_LABELS[absensi.sumber] ?? absensi.sumber}
+      </TableCell>
       <TableCell className="text-right">
         <div className="flex justify-end gap-2">
           <Dialog open={open} onOpenChange={setOpen}>

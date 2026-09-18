@@ -36,7 +36,7 @@ export interface Absensi {
   foto_pulang: string | null;
   status: "hadir" | "izin" | "sakit" | "alpha";
   keterangan: string | null;
-  sumber: "scan_qr" | "manual" | "auto_alpha";
+  sumber: "scan_qr" | "scan_wajah" | "manual" | "auto_alpha";
   terlambat: boolean;
   siswa?: Siswa;
 }

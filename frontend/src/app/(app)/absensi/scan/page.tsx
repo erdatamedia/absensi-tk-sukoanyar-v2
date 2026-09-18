@@ -52,6 +52,7 @@ export default function ScanPage() {
   const [mode, setMode] = useState<Mode>("face");
   const [step, setStep] = useState<Step>("scanning");
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const [scanSumber, setScanSumber] = useState<"scan_qr" | "scan_wajah">("scan_wajah");
   const [message, setMessage] = useState<string | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -96,6 +97,7 @@ export default function ScanPage() {
           active={step === "scanning"}
           onMatch={(result, photo) => {
             setScanResult(result);
+            setScanSumber("scan_wajah");
             setPhotoPreview(photo);
             setStep("confirm");
           }}
@@ -108,6 +110,7 @@ export default function ScanPage() {
           active={step === "scanning"}
           onMatch={(result, photo) => {
             setScanResult(result);
+            setScanSumber("scan_qr");
             setPhotoPreview(photo);
             setStep("confirm");
           }}
@@ -133,6 +136,7 @@ export default function ScanPage() {
       {step === "confirm" && scanResult && photoPreview && (
         <ConfirmCard
           scanResult={scanResult}
+          sumber={scanSumber}
           photoPreview={photoPreview}
           onSaved={(text) => {
             setMessage(text);
@@ -167,12 +171,14 @@ export default function ScanPage() {
 
 function ConfirmCard({
   scanResult,
+  sumber,
   photoPreview,
   onSaved,
   onSaving,
   onCancel,
 }: {
   scanResult: ScanResult;
+  sumber: "scan_qr" | "scan_wajah";
   photoPreview: string;
   onSaved: (message: string) => void;
   onSaving: () => void;
@@ -189,6 +195,7 @@ function ConfirmCard({
             siswa_id: scanResult.siswa_id,
             foto: photoPreview,
             jenis,
+            sumber,
           }),
         }
       );

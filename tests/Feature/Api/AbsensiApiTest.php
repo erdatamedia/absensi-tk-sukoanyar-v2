@@ -65,6 +65,38 @@ class AbsensiApiTest extends TestCase
         ]);
     }
 
+    public function test_saving_attendance_from_face_scan_records_scan_wajah_as_source(): void
+    {
+        Storage::fake('public');
+        Carbon::setTestNow('2026-04-13 07:30:00');
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $kelas = Kelas::create(['nama_kelas' => 'TK A', 'tahun_ajaran' => '2025/2026']);
+        $siswa = Siswa::create([
+            'nis' => 'S-102',
+            'nama' => 'Budi',
+            'kelas_id' => $kelas->id,
+            'jenis_kelamin' => 'L',
+        ]);
+
+        $this->actingAs($admin)
+            ->postJson('/api/absensi/simpan', [
+                'siswa_id' => $siswa->id,
+                'foto' => $this->sampleBase64Png(),
+                'jenis' => 'masuk',
+                'sumber' => 'scan_wajah',
+            ])
+            ->assertOk()
+            ->assertJson(['status' => 'ok', 'jenis' => 'masuk']);
+
+        $this->assertDatabaseHas('absensi', [
+            'siswa_id' => $siswa->id,
+            'tanggal' => '2026-04-13',
+            'status' => 'hadir',
+            'sumber' => 'scan_wajah',
+        ]);
+    }
+
     public function test_admin_can_store_manual_attendance_via_api(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

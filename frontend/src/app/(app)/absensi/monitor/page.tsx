@@ -7,6 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/page-header";
 import { GlassHero, GlassTile } from "@/components/glass-hero";
+
+const SUMBER_LABELS: Record<string, string> = {
+  scan_qr: "Scan QR",
+  scan_wajah: "Scan Wajah",
+  manual: "Manual",
+  auto_alpha: "Auto Alpha",
+};
 import {
   Table,
   TableBody,
@@ -122,7 +129,7 @@ export default function MonitorPage() {
                     </div>
                   </TableCell>
                   <TableCell className="text-xs uppercase text-muted-foreground">
-                    {item.sumber}
+                    {SUMBER_LABELS[item.sumber] ?? item.sumber}
                   </TableCell>
                 </TableRow>
               ))}

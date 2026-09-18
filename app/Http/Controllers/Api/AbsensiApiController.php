@@ -376,7 +376,7 @@ class AbsensiApiController extends Controller
             'kelas_id' => ['nullable'],
             'q' => ['nullable', 'string'],
             'status_filter' => ['nullable', 'in:hadir,izin,sakit,alpha'],
-            'sumber_filter' => ['nullable', 'in:scan_qr,manual,auto_alpha'],
+            'sumber_filter' => ['nullable', 'in:scan_qr,scan_wajah,manual,auto_alpha'],
             'terlambat_filter' => ['nullable', 'in:ya,tidak'],
         ]);
 
@@ -449,7 +449,7 @@ class AbsensiApiController extends Controller
             'kelas_id' => ['nullable'],
             'q' => ['nullable', 'string'],
             'status_filter' => ['nullable', 'in:hadir,izin,sakit,alpha'],
-            'sumber_filter' => ['nullable', 'in:scan_qr,manual,auto_alpha'],
+            'sumber_filter' => ['nullable', 'in:scan_qr,scan_wajah,manual,auto_alpha'],
             'terlambat_filter' => ['nullable', 'in:ya,tidak'],
         ]);
 
@@ -581,7 +581,10 @@ class AbsensiApiController extends Controller
             'siswa_id' => ['required', 'integer', 'exists:siswa,id'],
             'foto' => ['required', 'string'],
             'jenis' => ['required', 'in:masuk,pulang'],
+            'sumber' => ['nullable', 'in:scan_qr,scan_wajah'],
         ]);
+
+        $sumber = $request->input('sumber', 'scan_qr');
 
         $siswa = Siswa::find($request->siswa_id);
 
@@ -692,7 +695,7 @@ class AbsensiApiController extends Controller
                     'jam_masuk' => now()->toTimeString(),
                     'foto_masuk' => $filename,
                     'status' => 'hadir',
-                    'sumber' => 'scan_qr',
+                    'sumber' => $sumber,
                     'terlambat' => $isTerlambat,
                 ]);
 
